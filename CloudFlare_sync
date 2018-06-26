@@ -4,8 +4,8 @@ cd /etc/powerdns/cloudflare_sync
 
 ## Configuration
 
-mysqluser=`grep gmysql-user /etc/powerdns/pdns.d/pdns.local.gmysql* | cut -d'=' -f2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourUser"
-mysqlpass=`grep gmysql-password /etc/powerdns/pdns.d/pdns.local.gmysql* | cut -d'=' -f2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourPassword"
+mysqluser=`grep gmysql-user /etc/powerdns/pdns.conf | cut -d'=' -f2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourUser"
+mysqlpass=`grep gmysql-password /etc/powerdns/pdns.conf | cut -d'=' -f2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourPassword"
 apikey="YOUR CLOUDFLARE API GOES HERE"
 apimail="YOUR CLOUDFLARE LOGIN EMAIL GOES HERE"
 syncdelay="60" # Default sync time gap - Feel free to adjust, or use time as parameter when running a script.
