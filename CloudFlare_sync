@@ -305,7 +305,7 @@ function check_domain_synchronization {
 function create_cf_domain {
         domain=$1
         domainreturn=""
-        domaincreatestatus=$(curl -X POST "https://api.cloudflare.com/client/v4/zones" -H "X-Auth-Email: $apimail" -H "X-Auth-Key: $apikey" -H "Content-Type: application/json" --data "{\"name\":\"$domain\",\"jump_start\":false}" 2>/dev/null)
+        domaincreatestatus=$(curl -X POST "https://api.cloudflare.com/client/v4/zones" -H "X-Auth-Email: $apimail" -H "X-Auth-Key: $apikey" -H "Content-Type: application/json" --data "{\"name\":\"$domain\",\"jump_start\":false,\"organization\":{\"id\":\"$cforg\",\"name\":\"$cforgname\",\"status\":\"active\",\"permissions\":"[\"#zones:read\"]"}}" 2>/dev/null)
 
         if [ `echo $domaincreatestatus | grep "\"success\":false" | wc -l` != '0' ]
                 then
