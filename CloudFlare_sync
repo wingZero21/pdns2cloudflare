@@ -1,13 +1,11 @@
 #!/bin/bash
 
-cd /etc/powerdns/cloudflare_sync
-
 ## Configuration
 
-mysqluser=`grep gmysql-user /etc/powerdns/pdns.conf | cut -d'=' -f2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourUser"
-mysqlpass=`grep gmysql-password /etc/powerdns/pdns.conf | cut -d'=' -f2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourPassword"
-apikey="YOUR CLOUDFLARE API GOES HERE"
-apimail="YOUR CLOUDFLARE LOGIN EMAIL GOES HERE"
+mysqluser=`$1` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourUser"
+mysqlpass=`$2` #Here Goes MYSQL user for PowerDNS, this one gets pass form PDNS config, but feel free to change it to mysqluser="yourPassword"
+apikey="$3"
+apimail="$4"
 syncdelay="60" # Default sync time gap - Feel free to adjust, or use time as parameter when running a script.
 cfservicemode=false # false - Normal, true - CF Protected - Default setting how to create zones and records - Should CF proxy it through their Nginx, or shoult it only be DNS record.
 excludelist="TYPE DOMAINS TO EXCLUDE SYNC HERE. SPACE SEPARATED"
