@@ -8,6 +8,7 @@ apikey=""
 apimail=""
 pdnsdb=""
 cforg=""
+cforgname=""
 syncdelay="60" # Default sync time gap - Feel free to adjust, or use time as parameter when running a script.
 cfservicemode=false # false - Normal, true - CF Protected - Default setting how to create zones and records - Should CF proxy it through their Nginx, or shoult it only be DNS record.
 excludelist="TYPE DOMAINS TO EXCLUDE SYNC HERE. SPACE SEPARATED"
