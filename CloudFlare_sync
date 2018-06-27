@@ -18,7 +18,7 @@ changesmade=""
 ## Functions
 
 function get_domains_list {
-        echo "SELECT name FROM domains;" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d'
+        echo "SELECT name FROM domains;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d'
 }
 
 
@@ -82,11 +82,11 @@ function get_record_id {
 function add_new_domain_records {
 
         if [ "x$1" != "x" ]; then
-        getndomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$1';" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-        getnewaddjobs=`echo "SELECT * FROM cf_sync_new WHERE domain_id="$getndomainid";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+        getndomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$1';" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+        getnewaddjobs=`echo "SELECT * FROM cf_sync_new WHERE domain_id="$getndomainid";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
         else
 
-        getnewaddjobs=`echo "SELECT * FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+        getnewaddjobs=`echo "SELECT * FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
         fi
 
 if [ "x$getnewaddjobs" != "x" ]; then
@@ -95,21 +95,21 @@ if [ "x$getnewaddjobs" != "x" ]; then
 
                 record_id=`echo $newrecord | cut -d' ' -f1`
                 domain_id=`echo $newrecord | cut -d' ' -f2`
-                domain_name=`echo "SELECT name FROM domains WHERE id="$domain_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                domain_name=`echo "SELECT name FROM domains WHERE id="$domain_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                 record_name=`echo $newrecord | cut -d' ' -f3`
                 record_type=`echo $newrecord | cut -d' ' -f4`
-                record_content=`echo "SELECT content FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-                record_ttl=`echo "SELECT ttl FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-                record_prio=`echo "SELECT prio FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                record_content=`echo "SELECT content FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+                record_ttl=`echo "SELECT ttl FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+                record_prio=`echo "SELECT prio FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
 
                 if [[ "$excludelist" == *"$domain_name"* ]]; then
                         if [ "$record_type" == "NS" ] || [ "$record_type" == "SOA" ]; then
-                        echo "DELETE FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         continue;
                         fi
                 else
                         if [ "$record_type" == "NS" ] || [ "$record_type" == "SOA" ] || [ "x`echo $record_name | egrep -e \"^s1[0-9]{4}" -e "^s[0-4]{1}[0-9]{1,2}\"`" != "x" ]; then
-                        echo "DELETE FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         continue;
                         fi
                 fi
@@ -135,7 +135,7 @@ if [ "x$getnewaddjobs" != "x" ]; then
 
                 if [ "x`echo $statusresult | tr -d '"' | grep 'success:true'`" != "x" ]; then
                         echo Record Added Successfully
-                        echo "DELETE FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_new WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                 else
                         echo Record adding FAILED!!!! SEE WHAT IS WRONG:
                         echo "$statusresult"
@@ -151,10 +151,10 @@ fi
 function update_domain_records {
 
                 if [ "x$1" != "x" ]; then
-                getudomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$1';" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-                getnewupdjobs=`echo "SELECT * FROM cf_sync_updated WHERE domain_id="$getudomainid";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                getudomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$1';" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+                getnewupdjobs=`echo "SELECT * FROM cf_sync_updated WHERE domain_id="$getudomainid";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                 else
-                getnewupdjobs=`echo "SELECT * FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                getnewupdjobs=`echo "SELECT * FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                 fi
 
 if [ "x$getnewupdjobs" != "x" ]; then
@@ -163,21 +163,21 @@ if [ "x$getnewupdjobs" != "x" ]; then
 
                 record_id=`echo $newrecord | cut -d' ' -f1`
                 domain_id=`echo $newrecord | cut -d' ' -f2`
-                domain_name=`echo "SELECT name FROM domains WHERE id="$domain_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                domain_name=`echo "SELECT name FROM domains WHERE id="$domain_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                 record_name=`echo $newrecord | cut -d' ' -f3`
                 record_type=`echo $newrecord | cut -d' ' -f4`
-                record_content=`echo "SELECT content FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-                record_ttl=`echo "SELECT ttl FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-                record_prio=`echo "SELECT prio FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                record_content=`echo "SELECT content FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+                record_ttl=`echo "SELECT ttl FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+                record_prio=`echo "SELECT prio FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
 
                 if [[ "$excludelist" == *"$domain_name"* ]]; then
                         if [ "$record_type" == "NS" ] || [ "$record_type" == "SOA" ]; then
-                        echo "DELETE FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         continue;
                         fi
                 else
                         if [ "$record_type" == "NS" ] || [ "$record_type" == "SOA" ] || [ "x`echo $record_name | egrep -e \"^s1[0-9]{4}" -e "^s[0-4]{1}[0-9]{1,2}\"`" != "x" ]; then
-                        echo "DELETE FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         continue;
                         fi
                 fi
@@ -202,7 +202,7 @@ if [ "x$getnewupdjobs" != "x" ]; then
 
                 if [ "x`echo $statusresult | tr -d '"' | grep 'success:true'`" != "x" ]; then
                         echo Record Updated Successfully
-                        echo "DELETE FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_updated WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                 else
                         echo Record Updating FAILED!!!! SEE WHAT IS WRONG:
                         echo "$statusresult"
@@ -220,10 +220,10 @@ fi
 function delete_domain_records {
 
                         if [ "x$1" != "x" ]; then
-                        getddomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$1';" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
-                        getdeljobs=`echo "SELECT * FROM cf_sync_deleted WHERE domain_id="$getddomainid";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                        getddomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$1';" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
+                        getdeljobs=`echo "SELECT * FROM cf_sync_deleted WHERE domain_id="$getddomainid";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                         else
-                        getdeljobs=`echo "SELECT * FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                        getdeljobs=`echo "SELECT * FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                         fi
 
 if [ "x$getdeljobs" != "x" ]; then
@@ -232,18 +232,18 @@ if [ "x$getdeljobs" != "x" ]; then
 
                 record_id=`echo $newrecord | cut -d' ' -f1`
                 domain_id=`echo $newrecord | cut -d' ' -f2`
-                domain_name=`echo "SELECT name FROM domains WHERE id="$domain_id";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                domain_name=`echo "SELECT name FROM domains WHERE id="$domain_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                 record_name=`echo $newrecord | cut -d' ' -f3`
                 record_type=`echo $newrecord | cut -d' ' -f4`
 
                 if [[ "$excludelist" == *"$domain_name"* ]]; then
                         if [ "$record_type" == "NS" ] || [ "$record_type" == "SOA" ]; then
-                        echo "DELETE FROM cf_sync_deleted WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_deleted WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         continue;
                         fi
                 else
                         if [ "$record_type" == "NS" ] || [ "$record_type" == "SOA" ] || [ "x`echo $record_name | egrep -e \"^s1[0-9]{4}" -e "^s[0-4]{1}[0-9]{1,2}\"`" != "x" ]; then
-                        echo "DELETE FROM cf_sync_deleted WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_deleted WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         continue;
                         fi
                 fi
@@ -271,7 +271,7 @@ if [ "x$getdeljobs" != "x" ]; then
 
                 if [ "x`echo $statusresult | tr -d '"' | grep 'success:true'`" != "x" ]; then
                         echo Record Deleted Successfully
-                        echo "DELETE FROM cf_sync_deleted WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_deleted WHERE id="$record_id";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                 else
                         echo Record Removal FAILED!!!! SEE WHAT IS WRONG:
                         echo "$statusresult"
@@ -345,9 +345,9 @@ fi
 if [ "x$1" == "x--flush-queue" ]; then
 
         if [ "x$2" == "x--forced" ]; then
-         echo "DELETE FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass pdns
-         echo "DELETE FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass pdns
-         echo "DELETE FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass pdns
+         echo "DELETE FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+         echo "DELETE FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+         echo "DELETE FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
          exit 0
         fi
 
@@ -360,19 +360,19 @@ read ODP
                 exit 0
         else
                 if [ "x$2" != "x" ]; then
-                        getdomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$2';" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                        getdomainid=`echo "SELECT id FROM domains WHERE NAME LIKE '$2';" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                         echo Flushing my queues in MYSQL database for domain $2
-                        echo "DELETE FROM cf_sync_new WHERE domain_id="$getdomainid";" | mysql -u $mysqluser --password=$mysqlpass pdns
-                        echo "DELETE FROM cf_sync_updated WHERE domain_id="$getdomainid";" | mysql -u $mysqluser --password=$mysqlpass pdns
-                        echo "DELETE FROM cf_sync_deleted WHERE domain_id="$getdomainid";" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_new WHERE domain_id="$getdomainid";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+                        echo "DELETE FROM cf_sync_updated WHERE domain_id="$getdomainid";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+                        echo "DELETE FROM cf_sync_deleted WHERE domain_id="$getdomainid";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         echo Done
                         exit 0
                 else
 
                         echo Flushing my queues in MYSQL database
-                        echo "DELETE FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass pdns
-                        echo "DELETE FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass pdns
-                        echo "DELETE FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "DELETE FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+                        echo "DELETE FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+                        echo "DELETE FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         echo Done
                         exit 0
                 fi
@@ -381,9 +381,9 @@ fi
 
 if [ "x$1" == "x--show-queue" ]; then
                 echo My queues in MYSQL database:
-                echo "SELECT * FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass pdns
-                echo "SELECT * FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass pdns
-                echo "SELECT * FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass pdns
+                echo "SELECT * FROM cf_sync_new;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+                echo "SELECT * FROM cf_sync_updated;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
+                echo "SELECT * FROM cf_sync_deleted;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                 echo Done
                 exit 0
 fi
@@ -424,7 +424,7 @@ read ODP
                 exit 0
         else
                 echo Copying all PowerDNS records to Cloudflare Sync Table
-                echo "insert into cf_sync_new (domain_id,name,type,content,ttl,prio) select domain_id,name,type,content,ttl,prio from records;" | mysql -u $mysqluser --password=$mysqlpass pdns
+                echo "insert into cf_sync_new (domain_id,name,type,content,ttl,prio) select domain_id,name,type,content,ttl,prio from records;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                 echo Should I now run a sync of this records? If not they will be synced at next script run. You will get e-mail with status. If yes - I will do this immediately, and print here on screen.
                 echo "(yes/no)"
                 read ODP2
@@ -449,9 +449,9 @@ if [ "x$1" == "x--restore-domain" ]; then
                         exit 0
                 else
                         echo Copying all PowerDNS records for $2 domain to Cloudflare Sync Table
-                        domainid=`echo "SELECT id FROM domains WHERE name=\"$2\";" | mysql -u $mysqluser --password=$mysqlpass pdns | sed '1d' `
+                        domainid=`echo "SELECT id FROM domains WHERE name=\"$2\";" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb | sed '1d' `
                         if [ "x$domainid" == "x" ]; then echo I didnt found any records for domain $2; exit 1; fi
-                        echo "insert into cf_sync_new (domain_id,name,type,content,ttl,prio) select domain_id,name,type,content,ttl,prio from records where domain_id=$domainid;" | mysql -u $mysqluser --password=$mysqlpass pdns
+                        echo "insert into cf_sync_new (domain_id,name,type,content,ttl,prio) select domain_id,name,type,content,ttl,prio from records where domain_id=$domainid;" | mysql -u $mysqluser --password=$mysqlpass $pdnsdb
                         echo Should I now run a sync of this records? If not they will be synced at next script run. You will get e-mail with status. If yes - I will do this immediately, and print here on screen.
                         echo "(yes/no)"
                         read ODP2
